@@ -1,5 +1,6 @@
 # MoveFiles
 File Organizer Console Application
+
 This repository contains a C# console application designed to help users organize their files by moving them from a common "downloads" directory into categorized subdirectories. The application sorts files based on their file type, such as documents, programs, videos, photos, compressed files, and music.
 
 Features
