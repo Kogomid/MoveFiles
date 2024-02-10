@@ -2,6 +2,7 @@
 {
     using System;
     using System.IO;
+    using Newtonsoft.Json;
 
     internal class Program
     {
@@ -10,22 +11,19 @@
             string userOption;
             do
             {
-                MoveFiles();
-                Console.WriteLine("Do you want to continue? (Q to quit)");
-                userOption = Console.ReadLine();
+                userOption = GetUserFileSelectionOption();
+                if (userOption.ToUpper() != "Q")
+                {
+                    (string userFolder, string[] fileExtensions) = GetUserFolderAndExtensions(userOption);
+                    (string downloadsPath, string userPath) = GetDownloadPath(userFolder);
+                    (int transferedAmount, int skippedAmount) = MoveFiles(downloadsPath, userPath, fileExtensions);
+                    ProvideFeedback(transferedAmount, skippedAmount, userOption);
+                }
             } while (userOption.ToUpper() != "Q");
         }
 
-        static void MoveFiles()
-        {
-            string userOption = GetUserInput();
-            (string userFolder, string[] fileExtensions) = GetUserFolderAndExtensions(userOption);
-            (string downloadsPath, string userPath) = GetDownloadPath(userFolder);
-            (int transferedAmount, int skippedAmount) = MoveFilesToFolder(downloadsPath, userPath, fileExtensions);
-            ProvideFeedback(transferedAmount, skippedAmount, userOption);
-        }
-
-        static string GetUserInput()
+       
+        static string GetUserFileSelectionOption()
         {
             Console.Clear();
             Console.WriteLine("Choose the type of the file you want to move:\n" +
@@ -37,13 +35,12 @@
                               "6.Music\n" +
                               "7.If you want to change download folder\n" +
                               "Q.To quit the program");
-            string userOption = Console.ReadLine();
-            return userOption;
+            return Console.ReadLine();
         }
-
+        
+        
         static (string, string[]) GetUserFolderAndExtensions(string userOption)
         {
-            
             string userFolder = "";
             string[] fileExtensions = { };
             switch (userOption)
@@ -83,7 +80,8 @@
                 case "7":
                     Console.WriteLine("Enter a new path");
                     string newPath = Console.ReadLine();
-                    File.WriteAllText("downloadsPath.txt", newPath);
+                    string json = JsonConvert.SerializeObject(newPath);
+                    File.WriteAllText("downloadsConfig.json", json);
                     break;
                 case "Q":
                     Console.WriteLine("Closing the program");
@@ -98,26 +96,33 @@
 
         static (string, string) GetDownloadPath(string userFolder)
             {
-                string downloadsPath = "";
-                string filePath = "downloadsPath.txt";
-                if (File.Exists("downloadsPath.txt"))
+                string downloadPath = "";
+                string downloadConfig = "downloadsConfig.json";
+                if (File.Exists("downloadsConfig.json"))
                 {
-                    downloadsPath = File.ReadAllText(filePath);
+                   string json =  File.ReadAllText(downloadConfig);
+                   downloadPath = JsonConvert.DeserializeObject<string>(json);
                 }
                 else
                 {
-                    Console.WriteLine("Enter the path of the Download folder");
-                    downloadsPath = Console.ReadLine();
-                    File.WriteAllText(filePath, downloadsPath);
+                    Console.WriteLine("Enter the path of the Download folder (without the \" \")");
+                    downloadPath = Console.ReadLine();
+                    string json = JsonConvert.SerializeObject(downloadPath);
+                    File.WriteAllText(downloadConfig, json);
                 }
-
-                string userPath = Path.Combine(downloadsPath, userFolder);
-                Directory.CreateDirectory(userPath);
-                
-                return (downloadsPath, userPath);
+                string userPath = Path.Combine(downloadPath, userFolder);
+                try
+                {
+                    Directory.CreateDirectory(userPath);
+                }
+                catch
+                {
+                    Console.WriteLine("Error creating the directory. Please check the path and try again.");
+                }
+                return (downloadPath, userPath);
             }
 
-            static (int, int) MoveFilesToFolder(string downloadsPath, string userPath, string[] fileExtensions)
+            static (int, int) MoveFiles(string downloadsPath, string userPath, string[] fileExtensions)
             {
                 int skippedAmount = 0;
                 int transferedAmount = 0;
@@ -137,18 +142,27 @@
                         else
                         {
                             transferedAmount += 1;
-                            File.Move(userFile, destFile);
+                            try
+                            {
+                                File.Move(userFile, destFile);
+                            }
+                            catch
+                            {
+                                Console.WriteLine($"Error moving {fileName}");
+                            }
                         }
                     }
-
                 }
                 return (transferedAmount, skippedAmount);
             }
 
             static void ProvideFeedback(int transferedAmount, int skippedAmount, string userOption)
             {
-                
-                if (transferedAmount >= 0 && userOption != "Q")
+                if (transferedAmount == 0 && skippedAmount == 0 && userOption != "7" && userOption != "Q")
+                {
+                    Console.WriteLine("No files to move.");
+                }
+                if (transferedAmount >= 0 && userOption != "7" && userOption != "Q")
                 {
                     Console.WriteLine($"Moved {transferedAmount} files.");
                 }
