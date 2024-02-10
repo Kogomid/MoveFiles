@@ -3,6 +3,7 @@
     using System;
     using System.IO;
     using Newtonsoft.Json;
+    using System.Collections.Generic; 
 
     internal class Program
     {
@@ -12,12 +13,18 @@
             do
             {
                 userOption = GetUserFileSelectionOption();
-                if (userOption.ToUpper() != "Q")
+                if (userOption.ToUpper() != "Q" && userOption.ToUpper() != "C")
                 {
                     (string userFolder, string[] fileExtensions) = GetUserFolderAndExtensions(userOption);
                     (string downloadsPath, string userPath) = GetDownloadPath(userFolder);
                     (int transferedAmount, int skippedAmount) = MoveFiles(downloadsPath, userPath, fileExtensions);
                     ProvideFeedback(transferedAmount, skippedAmount, userOption);
+                }
+                else if (userOption.ToUpper() == "C")
+                {
+                    ChangeDirectory();
+                    Console.WriteLine("The path has been changed");
+                    Console.ReadLine();
                 }
             } while (userOption.ToUpper() != "Q");
         }
@@ -33,64 +40,37 @@
                               "4.Photos\n" +
                               "5.Compressed\n" +
                               "6.Music\n" +
-                              "7.If you want to change download folder\n" +
+                              "C.If you want to change download folder\n" +
                               "Q.To quit the program");
             return Console.ReadLine();
         }
-        
-        
+
+        static Dictionary <string, (string, string[])> fileTypes = new Dictionary<string, (string, string[])>()
+        {
+            {"1", ("Documents", new string[] { "*.txt", "*.doc", "*.docx", "*.odt", "*.pdf", "*.xls", "*.xlsx", "*.ods", "*.csv", "*.ppt", "*.pptx", "*.odp", "*.mdb", "*.accdb", "*.html", "*.htm" })},
+            {"2", ("Programs", new string[] { "*.exe", "*.app", "*.dmg", "*.dll", "*.so", "*.dylib", "*.py", "*.js", "*.rb", "*.php", "*.java", "*.class", "*.jar", "*.msi" })},
+            {"3", ("Video", new string[] { "*.mp4", "*.mkv", "*.flv", "*.avi", "*.mov", "*.wmv" })},
+            {"4", ("Photos", new string[] { "*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp", "*.tiff", "*.svg" })},
+            {"5", ("Compressed", new string[] { "*.zip", "*.rar", "*.tar", "*.gz", "*.7z" })},
+            {"6", ("Music", new string[] { "*.mp3", "*.m4a", "*.wav", "*.aac", "*.flac", "*.ogg", "*.m4a" })}
+        };
         static (string, string[]) GetUserFolderAndExtensions(string userOption)
         {
-            string userFolder = "";
-            string[] fileExtensions = { };
-            switch (userOption)
+            if (fileTypes.TryGetValue(userOption, out var fileType))
             {
-                case "1":
-                    userFolder = "Documents";
-                    fileExtensions = new string[]
-                    {
-                        "*.txt", "*.doc", "*.docx", "*.odt", "*.pdf", "*.xls", "*.xlsx", "*.ods", "*.csv", "*.ppt",
-                        "*.pptx", "*.odp", "*.mdb", "*.accdb", "*.html", "*.htm"
-                    };
-                    break;
-                case "2":
-                    userFolder = "Programs";
-                    fileExtensions = new string[]
-                    {
-                        "*.exe", "*.app", "*.dmg", "*.dll", "*.so", "*.dylib", "*.py", "*.js", "*.rb", "*.php",
-                        "*.java", "*.class", "*.jar", "*.msi"
-                    };
-                    break;
-                case "3":
-                    userFolder = "Video";
-                    fileExtensions = new string[] {"*.mp4", "*.mkv", "*.flv", "*.avi", "*.mov", "*.wmv"};
-                    break;
-                case "4":
-                    userFolder = "Photos";
-                    fileExtensions = new string[] {"*.jpg", "*.jpeg", "*.png", "*.gif", "*.bmp", "*.tiff", "*.svg"};
-                    break;
-                case "5":
-                    userFolder = "Compressed";
-                    fileExtensions = new string[] {"*.zip", "*.rar", "*.tar", "*.gz", "*.7z"};
-                    break;
-                case "6":
-                    userFolder = "Music";
-                    fileExtensions = new string[] {"*.mp3", "*.m4a", "*.wav", "*.aac", "*.flac", "*.ogg", "*.m4a"};
-                    break;
-                case "7":
-                    Console.WriteLine("Enter a new path");
-                    string newPath = Console.ReadLine();
-                    string json = JsonConvert.SerializeObject(newPath);
-                    File.WriteAllText("downloadsConfig.json", json);
-                    break;
-                case "Q":
-                    Console.WriteLine("Closing the program");
-                    break;
-                default:
-                    Console.WriteLine("That option doesn't exist");
-                    break;
+                (string userFolder, string[] fileExtensions) = fileType;
+                return (userFolder, fileExtensions);
             }
-            return (userFolder,fileExtensions);
+            else if (userOption.ToUpper() != "C" && userOption.ToUpper() != "Q")
+            {
+                Console.WriteLine("Invalid option. Please try again.");
+                Console.ReadLine();
+                return GetUserFolderAndExtensions(GetUserFileSelectionOption());
+            }
+            else
+            {
+                return ("", new string[] { });
+            }
         }
     
 
@@ -108,8 +88,9 @@
                     Console.WriteLine("Enter the path of the Download folder (without the \" \")");
                     downloadPath = Console.ReadLine();
                     string json = JsonConvert.SerializeObject(downloadPath);
-                    File.WriteAllText(downloadConfig, json);
+                    File.WriteAllText("downloadsConfig.json", json);
                 }
+                
                 string userPath = Path.Combine(downloadPath, userFolder);
                 try
                 {
@@ -122,14 +103,24 @@
                 return (downloadPath, userPath);
             }
 
-            static (int, int) MoveFiles(string downloadsPath, string userPath, string[] fileExtensions)
+
+        static void ChangeDirectory()
+        {
+            Console.WriteLine("Enter a new path (without the \" \")");
+            string downloadPath = Console.ReadLine();
+            string json = JsonConvert.SerializeObject(downloadPath);
+            File.WriteAllText("downloadsConfig.json", json);
+        }        
+        
+        
+            static (int, int) MoveFiles(string downloadPath, string userPath, string[] fileExtensions)
             {
                 int skippedAmount = 0;
                 int transferedAmount = 0;
 
                 foreach (string fileExtension in fileExtensions)
                 {
-                    string[] userFiles = Directory.GetFiles(downloadsPath, fileExtension);
+                    string[] userFiles = Directory.GetFiles(downloadPath, fileExtension);
 
                     foreach (string userFile in userFiles)
                     {
@@ -158,11 +149,11 @@
 
             static void ProvideFeedback(int transferedAmount, int skippedAmount, string userOption)
             {
-                if (transferedAmount == 0 && skippedAmount == 0 && userOption != "7" && userOption != "Q")
+                if (transferedAmount == 0 && skippedAmount == 0 && userOption.ToUpper() != "C" && userOption.ToUpper() != "Q")
                 {
                     Console.WriteLine("No files to move.");
                 }
-                if (transferedAmount >= 0 && userOption != "7" && userOption != "Q")
+                if (transferedAmount > 0 && userOption != "C" && userOption != "Q")
                 {
                     Console.WriteLine($"Moved {transferedAmount} files.");
                 }
@@ -172,7 +163,5 @@
                 }
                 Console.ReadLine();
             }
-            
-            
     }
 }
