@@ -22,10 +22,10 @@
                         var config = Configuration.LoadConfiguration();
                         if (Directory.Exists(config.DownloadPath))
                         {
-                            string downloadFolderPath = Configuration.GetADownloadFolderPath();
-                            string folderPath = Configuration.GetASubFolderPath(nameOfTheFolder);
-                            (int transferedAmount, int skippedAmount) = MoveFiles(folderPath, downloadFolderPath, fileExtensions);
-                            ProvideFeedback(transferedAmount, skippedAmount, userOption);
+                            string downloadFolderPath = Configuration.GetDownloadFolderPath();
+                            string subFolderPath = Configuration.GetSubFolderPath(nameOfTheFolder);
+                            (int transferredAmount, int skippedAmount) = MoveFiles(subFolderPath, downloadFolderPath, fileExtensions);
+                            ProvideFeedback(transferredAmount, skippedAmount, userOption);
                         }
                         else
                         {
@@ -42,58 +42,57 @@
                 else if (userOption.ToUpper() == "C")
                 {
                     Configuration.CreateOrChangeConfigFile();
-                    Console.WriteLine("The path has been changed");
-                    Console.ReadLine();
                 }
             } while (userOption.ToUpper() != "Q");
         }
         
         
-        static (int, int) MoveFiles(string folderPath, string downloadFolderPath, string[] fileExtensions)
+        static (int, int) MoveFiles(string subFolderPath, string downloadFolderPath, string[] fileExtensions)
         {
             int skippedAmount = 0;
-            int transferedAmount = 0;
+            int transferredAmount = 0;
             Configuration.CreateANewFolder(downloadFolderPath);
             foreach (string fileExtension in fileExtensions)
             {
-                string[] userFiles = Directory.GetFiles(downloadFolderPath, fileExtension);
+                string[] filesInDownloadFolder = Directory.GetFiles(downloadFolderPath, fileExtension);
 
-                foreach (string userFile in userFiles)
+                foreach (string oneFile in filesInDownloadFolder)
                 {
-                    string fileName = Path.GetFileName(userFile);
-                    string destFile = Path.Combine(folderPath, fileName);
+                    string fileName = Path.GetFileName(oneFile);
+                    string destFile = Path.Combine(subFolderPath, fileName);
                     if (File.Exists(destFile))
                     {
                         skippedAmount += 1;
                     }
                     else
                     {
-                        transferedAmount += 1;
                         try
                         {
-                            File.Move(userFile, destFile);
+                            File.Move(oneFile, destFile);
+                            transferredAmount += 1;
                         }
                         catch
                         {
                             Console.WriteLine($"Error moving {fileName}");
+                            skippedAmount += 1;
                         }
                     }
                 }
             }
-            return (transferedAmount, skippedAmount);
+            return (transferredAmount, skippedAmount);
         }
         
 
-        static void ProvideFeedback(int transferedAmount, int skippedAmount, string userOption)
+        static void ProvideFeedback(int transferredAmount, int skippedAmount, string userOption)
         {
-            if (transferedAmount == 0 && skippedAmount == 0 && userOption.ToUpper() != "C" &&
+            if (transferredAmount == 0 && skippedAmount == 0 && userOption.ToUpper() != "C" &&
                 userOption.ToUpper() != "Q")
             {
                 Console.WriteLine("No files to move.");
             }
-            if (transferedAmount > 0 && userOption != "C" && userOption != "Q")
+            if (transferredAmount > 0 && userOption != "C" && userOption != "Q")
             {
-                Console.WriteLine($"Moved {transferedAmount} files.");
+                Console.WriteLine($"Moved {transferredAmount} files.");
             }
             if (skippedAmount > 0)
             {
@@ -122,7 +121,7 @@
             string input = GetInput();
             if (input.ToUpper() == "C")
             {
-                Program.Main();
+                return "C";
             }
             else if (input == "")
             {
@@ -142,7 +141,7 @@
                 }
                 
             }
-            return null;
+            return "";
         }
     }
 
@@ -161,6 +160,10 @@
         {
             string newDownloadPath = ConsoleInteraction.GetNewDownloadPath();
 
+            if (newDownloadPath == "C")
+            {
+                return;
+            }
             if (Directory.Exists(newDownloadPath))
             {
                 var config = new Configuration()
@@ -170,6 +173,8 @@
                 try
                 {
                     SaveConfiguration(config);
+                    Console.WriteLine("The path has been changed");
+                    Console.ReadLine();
                 }
                 catch (Exception e)
                 {
@@ -209,7 +214,7 @@
             File.WriteAllText(ConfigFile, json);
         }
 
-        public static string GetASubFolderPath(string nameOfTheFolder)
+        public static string GetSubFolderPath(string nameOfTheFolder)
         {
             var config = LoadConfiguration();
             string downloadPathFolder = config.DownloadPath;
@@ -218,7 +223,7 @@
             return (folderPath);
         }
 
-        public static string GetADownloadFolderPath()
+        public static string GetDownloadFolderPath()
         {
             var config = LoadConfiguration();
             return config.DownloadPath;
