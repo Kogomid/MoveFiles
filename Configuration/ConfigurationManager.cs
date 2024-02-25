@@ -1,18 +1,13 @@
-﻿namespace MoveFiles;
-
+namespace MoveFiles.Configuration;
+using MoveFiles.FileManagement;
+using MoveFiles.ConsoleInteraction;
 using Newtonsoft.Json;
 
-public class Configuration
+public class ConfigurationManager
     {
         static readonly string ConfigFile = "config.json";
 
         public string DownloadPath { get; set; }
-        
-        public static string GetDownloadFolderPath()
-        {
-            var config = LoadConfiguration();
-            return config.DownloadPath;
-        }
         
         public static bool CheckIfConfigFileExists()
         {
@@ -23,20 +18,20 @@ public class Configuration
         {
             string newDownloadPath = ConsoleInteraction.GetNewDownloadPath();
 
-            if (newDownloadPath == "C")
+            if (newDownloadPath == Constants.ChangeDirectoryOption)
             {
                 return;
             }
             if (Directory.Exists(newDownloadPath))
             {
-                var config = new Configuration()
+                var config = new ConfigurationManager()
                 {
                     DownloadPath = newDownloadPath
                 };
                 try
                 {
                     SaveConfiguration(config);
-                    Console.WriteLine("The path has been changed");
+                    ConsoleInteraction.PrintMessage("The path has been changed");
                     Console.ReadLine();
                 }
                 catch (Exception e)
@@ -48,12 +43,12 @@ public class Configuration
             }
             else
             {
-                Console.WriteLine("That path does not exist. Please try again.");
+                ConsoleInteraction.PrintMessage("That path does not exist. Please try again.");
                 CreateOrChangeConfigFile();
             }
         }
 
-        public static Configuration LoadConfiguration()
+        public static ConfigurationManager LoadConfiguration()
         {
             if (CheckIfConfigFileExists() == false)
             {
@@ -62,7 +57,7 @@ public class Configuration
             try
             {
                 string json = File.ReadAllText(ConfigFile);
-                return JsonConvert.DeserializeObject<Configuration>(json);
+                return JsonConvert.DeserializeObject<ConfigurationManager>(json);
             }
             catch
             {
@@ -71,32 +66,10 @@ public class Configuration
             return null;
         }
 
-        public static void SaveConfiguration(Configuration config)
+        public static void SaveConfiguration(ConfigurationManager config)
         {
             string json = JsonConvert.SerializeObject(config);
             File.WriteAllText(ConfigFile, json);
         }
-
-        public static string GetSubFolderPath(string nameOfTheFolder)
-        {
-            var config = LoadConfiguration();
-            string downloadPathFolder = config.DownloadPath;
-            string folderPath = Path.Combine(downloadPathFolder, nameOfTheFolder);
-
-            return (folderPath);
-        }
         
-
-        public static void CreateANewFolder(string folderPath)
-        {
-            try
-            {
-                Directory.CreateDirectory(folderPath);
-            }
-            catch
-            {
-                ConsoleInteraction.PrintMessage("Error creating the directory. Please check the path and try again.");
-            }
-
-        }
     }

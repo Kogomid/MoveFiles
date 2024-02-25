@@ -1,34 +1,39 @@
-﻿namespace MoveFiles;
-
+﻿namespace MoveFiles.FileManagement;
+using MoveFiles.ConsoleInteraction;
+using MoveFiles.Configuration;
 public class FileMover
 {
     public static (int, int) MoveFiles(string subFolderPath, string downloadFolderPath, string[] fileExtensions)
     {
         int skippedAmount = 0;
         int transferredAmount = 0;
-        Configuration.CreateANewFolder(downloadFolderPath);
+        
+        DirectoryManager.CreateANewSubFolder(subFolderPath);
+        
         foreach (string fileExtension in fileExtensions)
         {
             string[] filesInDownloadFolder = Directory.GetFiles(downloadFolderPath, fileExtension);
 
-            foreach (string oneFile in filesInDownloadFolder)
+            foreach (string selectedFile in filesInDownloadFolder)
             {
-                string fileName = Path.GetFileName(oneFile);
-                string destFile = Path.Combine(subFolderPath, fileName);
-                if (File.Exists(destFile))
+                string fileNameAndExtension = Path.GetFileName(selectedFile);
+                string destinationFolder = Path.Combine(subFolderPath, fileNameAndExtension);
+
+                if (File.Exists(destinationFolder))
                 {
+                    ConsoleInteraction.PrintMessage($"{fileNameAndExtension} already exists in the folder.");
                     skippedAmount += 1;
                 }
                 else
                 {
                     try
                     {
-                        File.Move(oneFile, destFile);
+                        File.Move(selectedFile, destinationFolder);
                         transferredAmount += 1;
                     }
                     catch
                     {
-                        Console.WriteLine($"Error moving {fileName}");
+                        ConsoleInteraction.PrintMessage($"Error moving {fileNameAndExtension}");
                         skippedAmount += 1;
                     }
                 }

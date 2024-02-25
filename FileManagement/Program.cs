@@ -1,49 +1,46 @@
-﻿namespace MoveFiles
+﻿namespace MoveFiles.FileManagement;
+using MoveFiles.Configuration;
+using MoveFiles.ConsoleInteraction;
+class Program
 {
-    using System.IO;
-
-    class Program
+    public static void Main()
     {
-        public static void Main()
+        string userOption;
+        do
         {
-            string userOption;
-            do
+            userOption = UserInput.GetUserFileSelectionOption();
+
+            if (UserInput.UserNoCancelNoQuit(userOption))
             {
-                userOption = UserInput.GetUserFileSelectionOption();
-
-                if (UserInput.UserNoCancelNoQuit(userOption))
+                if (ConfigurationManager.CheckIfConfigFileExists())
                 {
-                    if (Configuration.CheckIfConfigFileExists())
+                    (string nameOfTheFolder, string[] fileExtensions) = FolderNameAndExtensions.GetFolderNameAndExtensions(userOption);
+                    var config = ConfigurationManager.LoadConfiguration();
+                    if (Directory.Exists(config.DownloadPath))
                     {
-                        (string nameOfTheFolder, string[] fileExtensions) =
-                            UserInput.GetFolderNameAndExtensions(userOption);
-                        var config = Configuration.LoadConfiguration();
-                        if (Directory.Exists(config.DownloadPath))
-                        {
-                            string downloadFolderPath = Configuration.GetDownloadFolderPath();
-                            string subFolderPath = Configuration.GetSubFolderPath(nameOfTheFolder);
-                            (int transferredAmount, int skippedAmount) = FileMover.MoveFiles(subFolderPath, downloadFolderPath, fileExtensions);
-                            FeedbackProvider.ProvideFeedback(transferredAmount, skippedAmount, userOption);
-                        }
-
-                        else
-                        {
-                            Console.WriteLine("The path cannot be found. Please provide a new path");
-                            Configuration.CreateOrChangeConfigFile();
-                        }
-
+                        string downloadFolderPath = DirectoryManager.GetDownloadFolderPath();
+                        string subFolderPath = DirectoryManager.GetSubFolderPath(nameOfTheFolder);
+                        (int transferredAmount, int skippedAmount) = FileMover.MoveFiles(subFolderPath, downloadFolderPath, fileExtensions);
+                        FeedbackProvider.ProvideFeedback(transferredAmount, skippedAmount, userOption);
                     }
+
                     else
                     {
-                        Configuration.CreateOrChangeConfigFile();
+                        Console.WriteLine("The path cannot be found. Please provide a new path");
+                        ConfigurationManager.CreateOrChangeConfigFile();
                     }
 
                 }
-                if (userOption.ToUpper() == "C")
+                else
                 {
-                    Configuration.CreateOrChangeConfigFile();
+                    ConfigurationManager.CreateOrChangeConfigFile();
                 }
-            } while (userOption.ToUpper() != "Q");
-        }
+
+            }
+            if (userOption.ToUpper() == Constants.ChangeDirectoryOption)
+            {
+                ConfigurationManager.CreateOrChangeConfigFile();
+            }
+        } while (userOption.ToUpper() != Constants.QuitOption);
     }
 }

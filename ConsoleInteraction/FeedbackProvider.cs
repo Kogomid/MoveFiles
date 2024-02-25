@@ -1,4 +1,5 @@
-﻿namespace MoveFiles;
+﻿namespace MoveFiles.ConsoleInteraction;
+using MoveFiles.ConsoleInteraction;
 
 public class FeedbackProvider
 {
@@ -6,15 +7,15 @@ public class FeedbackProvider
     {
         if (transferredAmount == 0 && skippedAmount == 0 && UserInput.UserNoCancelNoQuit(userOption))
         {
-            Console.WriteLine("No files to move.");
+            ConsoleInteraction.PrintMessage("No files to move.");
         }
         if (transferredAmount > 0 && UserInput.UserNoCancelNoQuit(userOption))
         {
-            Console.WriteLine($"Moved {transferredAmount} files.");
+            ConsoleInteraction.PrintMessage($"Moved {transferredAmount} files.");
         }
         if (skippedAmount > 0)
         {
-            Console.WriteLine($"Skipped {skippedAmount} files.");
+            ConsoleInteraction.PrintMessage($"Skipped {skippedAmount} files.");
         }
         Console.ReadLine();
     }

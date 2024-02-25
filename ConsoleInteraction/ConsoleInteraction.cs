@@ -1,4 +1,6 @@
-﻿namespace MoveFiles;
+﻿namespace MoveFiles.ConsoleInteraction;
+
+using MoveFiles.Configuration;
 
 public class ConsoleInteraction
 {
@@ -14,16 +16,16 @@ public class ConsoleInteraction
 
     public static string GetNewDownloadPath()
     {
-        PrintMessage("Enter the path of the Download folder (C to cancel)");
+        PrintMessage($"Enter the path of the Download folder ({Constants.ChangeDirectoryOption} to cancel)");
         string input = GetInput();
-        if (input.ToUpper() == "C")
+        if (input.ToUpper() == Constants.ChangeDirectoryOption)
         {
-            return "C";
+            return Constants.ChangeDirectoryOption;
         }
         else if (input == "")
         {
             PrintMessage("Input can not be empty.");
-            Configuration.CreateOrChangeConfigFile();
+            ConfigurationManager.CreateOrChangeConfigFile();
         }
         else if (Directory.Exists(input))
         {
