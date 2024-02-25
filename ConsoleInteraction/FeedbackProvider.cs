@@ -1,5 +1,4 @@
 ﻿namespace MoveFiles.ConsoleInteraction;
-using MoveFiles.ConsoleInteraction;
 
 public class FeedbackProvider
 {

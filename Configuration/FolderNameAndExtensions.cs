@@ -2,7 +2,7 @@
 
 public class FolderNameAndExtensions
 {
-    public static Dictionary<string, (string, string[])> FileTypes = new()
+    public static readonly Dictionary<string, (string, string[])> FileTypes = new()
     {
         {"1", ("Documents", new string[] {"*.txt", "*.doc", "*.docx", "*.odt", "*.pdf", "*.xls", "*.xlsx", "*.ods", "*.csv", "*.ppt", "*.pptx", "*.odp", "*.mdb", "*.accdb", "*.html", "*.htm"})},
         {"2", ("Programs", new string[] {"*.exe", "*.app", "*.dmg", "*.dll", "*.so", "*.dylib", "*.py", "*.js", "*.rb", "*.php", "*.java", "*.class", "*.jar", "*.msi"})},
@@ -12,15 +12,12 @@ public class FolderNameAndExtensions
         {"6", ("Music", new string[] {"*.mp3", "*.m4a", "*.wav", "*.aac", "*.flac", "*.ogg", "*.m4a"})}
     };
     
+    
     public static (string, string[]) GetFolderNameAndExtensions(string userOption)
     {
-        if (FileTypes.TryGetValue(userOption, out var fileType))
-        {
-            (string nameOfTheFolder, string[] fileExtensions) = fileType;
-            return (nameOfTheFolder, fileExtensions);
-        }
-            
-        return (null, null);
+        FileTypes.TryGetValue(userOption, out var fileNameAndType);
+        (string nameOfTheFolder, string[] fileExtensions) = fileNameAndType;
+        return (nameOfTheFolder, fileExtensions);
     }
     
 }

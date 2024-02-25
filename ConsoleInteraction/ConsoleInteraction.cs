@@ -1,10 +1,10 @@
 ﻿namespace MoveFiles.ConsoleInteraction;
 
-using MoveFiles.Configuration;
+using Configuration;
 
 public class ConsoleInteraction
 {
-    static string GetInput()
+    public static string GetInput()
     {
         return Console.ReadLine();
     }
@@ -31,7 +31,7 @@ public class ConsoleInteraction
         {
             return input;
         }
-        else if (input[0] == '"' && input[input.Length - 1] == '"')
+        else if (input[0] == '"' && input[^1] == '"')
         {
             string pathWithoutQuotation = input.Substring(1, input.Length - 2);
             if (Directory.Exists(pathWithoutQuotation))

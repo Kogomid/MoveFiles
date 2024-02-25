@@ -1,6 +1,6 @@
 ﻿namespace MoveFiles.FileManagement;
-using MoveFiles.ConsoleInteraction;
-using MoveFiles.Configuration;
+using ConsoleInteraction;
+using Configuration;
 public class FileMover
 {
     public static (int, int) MoveFiles(string subFolderPath, string downloadFolderPath, string[] fileExtensions)

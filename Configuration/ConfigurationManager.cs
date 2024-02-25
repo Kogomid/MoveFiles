@@ -1,13 +1,13 @@
 namespace MoveFiles.Configuration;
-using MoveFiles.FileManagement;
-using MoveFiles.ConsoleInteraction;
+using FileManagement;
+using ConsoleInteraction;
 using Newtonsoft.Json;
 
 public class ConfigurationManager
     {
         static readonly string ConfigFile = "config.json";
 
-        public string DownloadPath { get; set; }
+        public string? DownloadPath { get; set; }
         
         public static bool CheckIfConfigFileExists()
         {

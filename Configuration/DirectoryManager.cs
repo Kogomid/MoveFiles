@@ -1,5 +1,5 @@
 ﻿namespace MoveFiles.Configuration;
-using MoveFiles.ConsoleInteraction;
+using ConsoleInteraction;
 public class DirectoryManager
 {
     public static string GetDownloadFolderPath()
@@ -26,6 +26,19 @@ public class DirectoryManager
         catch
         {
             ConsoleInteraction.PrintMessage("Error creating the directory. Please check the path and try again.");
+        }
+    }
+
+    public static bool CheckIfDownloadPathExists()
+    {
+        try
+        {
+            var config = ConfigurationManager.LoadConfiguration();
+            return Directory.Exists(config.DownloadPath);
+        }
+        catch
+        {
+            return false;
         }
     }
 }
