@@ -10,7 +10,7 @@ class Program
         {
             userOption = UserInput.GetUserFileSelectionOption();
 
-            if (UserInput.UserNoCancelNoQuit(userOption))
+            if (UserInput.UserNoCancelNoDirectoryChangeNoQuitNoNameChange(userOption))
             {
                 if (ConfigurationManager.CheckIfConfigFileExists() && DirectoryManager.CheckIfDownloadPathExists())
                 {
@@ -20,10 +20,18 @@ class Program
                     (int transferredAmount, int skippedAmount) = FileMover.MoveFiles(subFolderPath, downloadFolderPath, fileExtensions);
                     FeedbackProvider.ProvideFeedback(transferredAmount, skippedAmount, userOption);
                 }
+                else if (!ConfigurationManager.CheckIfConfigFileExists())
+                {
+                    ConfigurationManager.CreateConfigFile();
+                }
             }
             else if (userOption.ToUpper() == Constants.ChangeDirectoryOption)
             {
-                ConfigurationManager.CreateOrChangeConfigFile();
+                ConfigurationManager.ChangeDownloadPathInConfig();
+            }
+            else if (userOption.ToUpper() == Constants.ChangeNameOption)
+            {
+                ConfigurationManager.ChangeFolderNamesInConfig();
             }
         } while (userOption.ToUpper() != Constants.QuitOption);
     }

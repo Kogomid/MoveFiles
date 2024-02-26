@@ -4,11 +4,11 @@ public class FeedbackProvider
 {
     public static void ProvideFeedback(int transferredAmount, int skippedAmount, string userOption)
     {
-        if (transferredAmount == 0 && skippedAmount == 0 && UserInput.UserNoCancelNoQuit(userOption))
+        if (transferredAmount == 0 && skippedAmount == 0 && UserInput.UserNoCancelNoDirectoryChangeNoQuitNoNameChange(userOption))
         {
             ConsoleInteraction.PrintMessage("No files to move.");
         }
-        if (transferredAmount > 0 && UserInput.UserNoCancelNoQuit(userOption))
+        if (transferredAmount > 0 && UserInput.UserNoCancelNoDirectoryChangeNoQuitNoNameChange(userOption))
         {
             ConsoleInteraction.PrintMessage($"Moved {transferredAmount} files.");
         }

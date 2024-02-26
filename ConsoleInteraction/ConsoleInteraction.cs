@@ -16,22 +16,22 @@ public class ConsoleInteraction
 
     public static string GetNewDownloadPath()
     {
-        PrintMessage($"Enter the path of the Download folder ({Constants.ChangeDirectoryOption} to cancel)");
+        PrintMessage($"Enter the path of the Download folder ({Constants.CancelOption} to cancel)");
         string input = GetInput();
-        if (input.ToUpper() == Constants.ChangeDirectoryOption)
+        if (input.ToUpper() == Constants.CancelOption)
         {
-            return Constants.ChangeDirectoryOption;
+            return Constants.CancelOption;
         }
-        else if (input == "")
+        if (!Directory.Exists(input))
         {
-            PrintMessage("Input can not be empty.");
-            ConfigurationManager.CreateOrChangeConfigFile();
+            PrintMessage("Path can not be found.");
+            return GetNewDownloadPath();
         }
-        else if (Directory.Exists(input))
+        if (Directory.Exists(input))
         {
             return input;
         }
-        else if (input[0] == '"' && input[^1] == '"')
+        if (input[0] == '"' && input[^1] == '"')
         {
             string pathWithoutQuotation = input.Substring(1, input.Length - 2);
             if (Directory.Exists(pathWithoutQuotation))
