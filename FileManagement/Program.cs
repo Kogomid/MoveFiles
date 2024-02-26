@@ -18,7 +18,7 @@ class Program
                     string downloadFolderPath = DirectoryManager.GetDownloadFolderPath();
                     string subFolderPath = DirectoryManager.GetSubFolderPath(nameOfTheFolder);
                     (int transferredAmount, int skippedAmount) = FileMover.MoveFiles(subFolderPath, downloadFolderPath, fileExtensions);
-                    FeedbackProvider.ProvideFeedback(transferredAmount, skippedAmount, userOption);
+                    FeedbackProvider.ProvideFeedback(transferredAmount, skippedAmount);
                 }
                 else if (!ConfigurationManager.CheckIfConfigFileExists())
                 {
