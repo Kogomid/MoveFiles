@@ -1,5 +1,7 @@
 ﻿namespace MoveFiles.Configuration;
+
 using ConsoleInteraction;
+
 public class DirectoryManager
 {
     public static string GetDownloadFolderPath()
@@ -7,7 +9,7 @@ public class DirectoryManager
         var config = ConfigurationManager.LoadConfiguration();
         return config.DownloadPath;
     }
-    
+
     public static string GetSubFolderPath(string nameOfTheFolder)
     {
         var config = ConfigurationManager.LoadConfiguration();

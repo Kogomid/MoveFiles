@@ -1,15 +1,17 @@
 ﻿namespace MoveFiles.FileManagement;
+
 using ConsoleInteraction;
 using Configuration;
+
 public class FileMover
 {
     public static (int, int) MoveFiles(string subFolderPath, string downloadFolderPath, string[] fileExtensions)
     {
         int skippedAmount = 0;
         int transferredAmount = 0;
-        
+
         DirectoryManager.CreateANewSubFolder(subFolderPath);
-        
+
         foreach (string fileExtension in fileExtensions)
         {
             string[] filesInDownloadFolder = Directory.GetFiles(downloadFolderPath, fileExtension);

@@ -22,7 +22,7 @@ public class ConsoleInteraction
         {
             return Constants.CancelOption;
         }
-        if (!Directory.Exists(input))
+        if (!Directory.Exists(input) || input == @"C:\" || input == "C:")
         {
             PrintMessage("Path can not be found.");
             return GetNewDownloadPath();
@@ -41,5 +41,39 @@ public class ConsoleInteraction
                 
         }
         return "";
+    }
+
+    public static string GetUserFolderNameSelection()
+    {
+        string pickFolder;
+        do
+        {
+            pickFolder = GetInput();
+
+        } while (string.IsNullOrEmpty(pickFolder) || (!FolderNameAndExtensions.FileTypes.ContainsKey(pickFolder) &&
+                                                      pickFolder.ToUpper() != Constants.CancelOption &&
+                                                      pickFolder.ToUpper() != Constants.ChangeNameSettingsOption));
+        return pickFolder;
+    }
+    public static bool UserNoCancelNoDirectoryChangeNoQuitNoNameChange(string userOption)
+    {
+        return (userOption.ToUpper() != Constants.CancelOption && userOption.ToUpper() != Constants.ChangeDirectoryOption && userOption.ToUpper() != Constants.QuitOption && userOption.ToUpper() != Constants.ChangeNameOption);
+    }
+
+    public static string GetUserFileSelectionOption(string userOption)
+    {
+        if (string.IsNullOrEmpty(userOption) || (!FolderNameAndExtensions.FileTypes.ContainsKey(userOption) && UserNoCancelNoDirectoryChangeNoQuitNoNameChange(userOption)))
+        {
+            PrintMessage("Enter a valid option");
+            Console.ReadKey();
+        }
+        return userOption;
+    }
+    
+    public static void DisplayFolderNames()
+    {
+        Console.WriteLine("Which name would you like to change? (C to cancel)\n" +
+                          UserMenu.FolderNames +
+                          $"Enter {Constants.ChangeNameSettingsOption} to revert the changes");
     }
 }

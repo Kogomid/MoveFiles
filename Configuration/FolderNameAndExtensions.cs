@@ -1,5 +1,6 @@
 ﻿namespace MoveFiles.Configuration;
-using Configuration;
+
+using ConsoleInteraction;
 public class FolderNameAndExtensions
 {
     public static readonly Dictionary<string, (string, string[])> FileTypes = new()
@@ -25,5 +26,22 @@ public class FolderNameAndExtensions
         var config = ConfigurationManager.LoadConfiguration();
         List<string> FolderName = config.FolderNames;
         return FolderName[option];
+    }
+    
+    public static void ResetFolderNamesToDefault()
+    {
+        var config = ConfigurationManager.LoadConfiguration();
+        config.FolderNames = Constants.DefaultFolderNameSettings;
+        ConfigurationManager.SaveConfiguration(config);
+    }
+
+    public static void ChangeFolderName(string pickFolder)
+    {
+        Console.WriteLine("Enter a new name for this folder.");
+        string newName = ConsoleInteraction.GetInput();
+
+        var config = ConfigurationManager.LoadConfiguration();
+        config.FolderNames[(Convert.ToInt32(pickFolder) - 1)] = newName;
+        ConfigurationManager.SaveConfiguration(config);
     }
 }
