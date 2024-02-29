@@ -5,23 +5,23 @@ using Configuration;
 
 public class FileMover
 {
-    public static (int, int) MoveFiles(string subFolderPath, string downloadFolderPath, string[] fileExtensions)
+    public static (int, int) MoveFiles(string subDirectoryPath, string downloadDirectoryPath, string[] fileExtensions)
     {
         int skippedAmount = 0;
         int transferredAmount = 0;
 
-        DirectoryManager.CreateANewSubFolder(subFolderPath);
+        DirectoryManager.CreateANewSubDirectory(subDirectoryPath);
 
         foreach (string fileExtension in fileExtensions)
         {
-            string[] filesInDownloadFolder = Directory.GetFiles(downloadFolderPath, fileExtension);
+            string[] filesInDownloadDirectory = Directory.GetFiles(downloadDirectoryPath, fileExtension);
 
-            foreach (string selectedFile in filesInDownloadFolder)
+            foreach (string selectedFile in filesInDownloadDirectory)
             {
                 string fileNameAndExtension = Path.GetFileName(selectedFile);
-                string destinationFolder = Path.Combine(subFolderPath, fileNameAndExtension);
+                string destinationDirectory = Path.Combine(subDirectoryPath, fileNameAndExtension);
 
-                if (File.Exists(destinationFolder))
+                if (File.Exists(destinationDirectory))
                 {
                     ConsoleInteraction.PrintMessage($"{fileNameAndExtension} already exists in the folder.");
                     skippedAmount += 1;
@@ -30,7 +30,7 @@ public class FileMover
                 {
                     try
                     {
-                        File.Move(selectedFile, destinationFolder);
+                        File.Move(selectedFile, destinationDirectory);
                         transferredAmount += 1;
                     }
                     catch

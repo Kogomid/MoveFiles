@@ -4,26 +4,26 @@ using ConsoleInteraction;
 
 public class DirectoryManager
 {
-    public static string GetDownloadFolderPath()
+    public static string GetDownloadDirectoryPath()
     {
         var config = ConfigurationManager.LoadConfiguration();
         return config.DownloadPath;
     }
 
-    public static string GetSubFolderPath(string nameOfTheFolder)
+    public static string GetSubDirectoryPath(string nameOfTheDirectory)
     {
         var config = ConfigurationManager.LoadConfiguration();
-        string downloadPathFolder = config.DownloadPath;
-        string subFolderPath = Path.Combine(downloadPathFolder, nameOfTheFolder);
+        string downloadPathDirectory = config.DownloadPath;
+        string subDirectoryPath = Path.Combine(downloadPathDirectory, nameOfTheDirectory);
 
-        return (subFolderPath);
+        return (subDirectoryPath);
     }
 
-    public static void CreateANewSubFolder(string subFolderPath)
+    public static void CreateANewSubDirectory(string subDirectoryPath)
     {
         try
         {
-            Directory.CreateDirectory(subFolderPath);
+            Directory.CreateDirectory(subDirectoryPath);
         }
         catch
         {

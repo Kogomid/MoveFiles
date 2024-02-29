@@ -16,12 +16,12 @@ class Program
             {
                 if (ConfigurationManager.CheckIfConfigFileExists() && DirectoryManager.CheckIfDownloadPathExists())
                 {
-                    (string nameOfTheFolder, string[] fileExtensions) =
-                        FolderNameAndExtensions.GetFolderNameAndExtensions(userOption);
-                    string downloadFolderPath = DirectoryManager.GetDownloadFolderPath();
-                    string subFolderPath = DirectoryManager.GetSubFolderPath(nameOfTheFolder);
+                    (string nameOfTheDirectory, string[] fileExtensions) =
+                        DirectoryNameAndExtensions.GetDirectoryNameAndExtensions(userOption);
+                    string downloadDirectoryPath = DirectoryManager.GetDownloadDirectoryPath();
+                    string subDirectoryPath = DirectoryManager.GetSubDirectoryPath(nameOfTheDirectory);
                     (int transferredAmount, int skippedAmount) =
-                        FileMover.MoveFiles(subFolderPath, downloadFolderPath, fileExtensions);
+                        FileMover.MoveFiles(subDirectoryPath, downloadDirectoryPath, fileExtensions);
                     FeedbackProvider.ProvideFeedback(transferredAmount, skippedAmount);
                 }
                 else if (!ConfigurationManager.CheckIfConfigFileExists())
@@ -35,7 +35,7 @@ class Program
             }
             else if (userOption.ToUpper() == Constants.ChangeNameOption)
             {
-                ConfigurationManager.ChangeFolderNamesInConfig();
+                ConfigurationManager.ChangeDirectoryNamesInConfig();
             }
         } while (userOption.ToUpper() != Constants.QuitOption);
     }

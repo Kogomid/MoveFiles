@@ -9,7 +9,7 @@ public class ConfigurationManager
     static readonly string ConfigFile = "config.json";
 
     public string? DownloadPath { get; set; }
-    public List<string>? FolderNames { get; set; }
+    public List<string>? DirectoryNames { get; set; }
 
     public static bool CheckIfConfigFileExists()
     {
@@ -20,8 +20,8 @@ public class ConfigurationManager
     {
         var config = new ConfigurationManager()
         {
-            DownloadPath = "enter a new path",
-            FolderNames = Constants.DefaultFolderNameSettings
+            DownloadPath = Constants.EnterNewPath,
+            DirectoryNames = Constants.DefaultDirectoryNameSettings
         };
         try
         {
@@ -35,24 +35,22 @@ public class ConfigurationManager
         }
     }
 
-    public static void ChangeFolderNamesInConfig()
+    public static void ChangeDirectoryNamesInConfig()
     {
-        ConsoleInteraction.DisplayFolderNames();
-        string pickFolder = ConsoleInteraction.GetUserFolderNameSelection();
-        
-        if (pickFolder.ToUpper() == Constants.CancelOption)
+        (string pickDirectory, string newName) = DirectoryNameAndExtensions.ChangeDirectoryName();
+        if (pickDirectory != String.Empty)
         {
-            return;
+            try
+            {
+                var config = LoadConfiguration();
+                config.DirectoryNames[(Convert.ToInt32(pickDirectory) - 1)] = newName;
+                SaveConfiguration(config);
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine($"An error occured: {e}");
+            }
         }
-        if (pickFolder.ToUpper() == Constants.ChangeNameSettingsOption)
-        {
-            FolderNameAndExtensions.ResetFolderNamesToDefault();
-        }
-        else
-        {
-            FolderNameAndExtensions.ChangeFolderName(pickFolder);
-        }
-
     }
 
     public static void ChangeDownloadPathInConfig()
@@ -110,7 +108,7 @@ public class ConfigurationManager
     {
         try
         {
-            string json = JsonConvert.SerializeObject(config);
+            string json = JsonConvert.SerializeObject(config, Formatting.Indented);
             File.WriteAllText(ConfigFile, json);
         }
         catch (Exception e)

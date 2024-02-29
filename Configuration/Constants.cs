@@ -10,9 +10,10 @@ public class Constants
 
     public const string ChangeNameOption = "N";
 
-    public const string ChangeNameSettingsOption = "DEFAULT";
+    public const string DefaultNameSettingsOption = "DEFAULT";
 
-    public static readonly List<string> DefaultFolderNameSettings =
+    public static readonly List<string> DefaultDirectoryNameSettings =
         new() {"Documents", "Programs", "Video", "Photos", "Compressed", "Music"};
-    
+
+    public const string EnterNewPath = "no path";
 }
