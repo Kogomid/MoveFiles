@@ -1,10 +1,12 @@
 ﻿namespace MoveFiles.FileManagement;
 
+using NLog;
 using ConsoleInteraction;
 using Configuration;
 
 public class FileMover
 {
+    static readonly Logger Logger = LogManager.GetCurrentClassLogger();
     public static (int, int) MoveFiles(string subDirectoryPath, string downloadDirectoryPath, string[] fileExtensions)
     {
         int skippedAmount = 0;
@@ -33,9 +35,9 @@ public class FileMover
                         File.Move(selectedFile, destinationDirectory);
                         transferredAmount += 1;
                     }
-                    catch
+                    catch (Exception e)
                     {
-                        ConsoleInteraction.PrintMessage($"Error moving {fileNameAndExtension}");
+                        Logger.Error(e, $"Error moving {fileNameAndExtension}");
                         skippedAmount += 1;
                     }
                 }
