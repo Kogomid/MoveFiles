@@ -1,9 +1,11 @@
 ﻿namespace MoveFiles.Configuration;
 
-using ConsoleInteraction;
+using NLog;
 
 public class DirectoryManager
 {
+    static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    
     public static string GetDownloadDirectoryPath()
     {
         var config = ConfigurationManager.LoadConfiguration();
@@ -25,9 +27,9 @@ public class DirectoryManager
         {
             Directory.CreateDirectory(subDirectoryPath);
         }
-        catch
+        catch (Exception e)
         {
-            ConsoleInteraction.PrintMessage("Error creating the directory. Please check the path and try again.");
+            Logger.Error(e, "Error creating the directory. Please check the path and try again.");
         }
     }
 

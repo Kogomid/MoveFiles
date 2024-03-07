@@ -52,23 +52,22 @@ public class ConsoleInteraction
             DisplayDirectoryNames();
             pickDirectory = GetInput();
 
-        } while (string.IsNullOrEmpty(pickDirectory) || (!DirectoryNameAndExtensions.FileTypes.ContainsKey(pickDirectory) &&
-                                                      pickDirectory.ToUpper() != Constants.CancelOption &&
-                                                      pickDirectory.ToUpper() != Constants.DefaultNameSettingsOption));
-        string pickDirectoryUpper = pickDirectory.ToUpper();
-        if (pickDirectoryUpper == Constants.CancelOption)
+        } while (!IsValidDirectorySelection(pickDirectory));
+        return ProcessDirectorySelection(pickDirectory);
+    }
+
+    static string ProcessDirectorySelection(string pickDirectory)
+    {
+        if (pickDirectory.ToUpper() == Constants.CancelOption)
         {
-            
+            return String.Empty;
         }
-        else if (pickDirectoryUpper == Constants.DefaultNameSettingsOption)
+        if (pickDirectory.ToUpper() == Constants.DefaultNameSettingsOption)
         { 
             DirectoryNameAndExtensions.ResetDirectoryNamesToDefault();
+            return (string.Empty);
         }
-        else if (DirectoryNameAndExtensions.FileTypes.ContainsKey(pickDirectory))
-        {
-            return pickDirectory;
-        }
-        return (string.Empty);
+        return pickDirectory;
     }
     public static bool UserNoCancelNoDirectoryChangeNoQuitNoNameChange(string userOption)
     {
@@ -80,13 +79,25 @@ public class ConsoleInteraction
 
     public static string GetUserFileSelectionOption(string userOption)
     {
-        if (string.IsNullOrEmpty(userOption) || (!DirectoryNameAndExtensions.FileTypes.ContainsKey(userOption) && 
-                                                 UserNoCancelNoDirectoryChangeNoQuitNoNameChange(userOption)))
+        if (!IsValidFileSelection(userOption))
         {
             PrintMessage("Enter a valid option");
             Console.ReadKey();
         }
         return userOption;
+    }
+
+    static bool IsValidDirectorySelection(string pickDirectory)
+    {
+        return !string.IsNullOrEmpty(pickDirectory) &&
+               (DirectoryNameAndExtensions.FileTypes.ContainsKey(pickDirectory) ||
+                pickDirectory.ToUpper() == Constants.CancelOption ||
+                pickDirectory.ToUpper() == Constants.DefaultNameSettingsOption);
+    }
+    static bool IsValidFileSelection(string userOption)
+    {
+        return !string.IsNullOrEmpty(userOption) && (DirectoryNameAndExtensions.FileTypes.ContainsKey(userOption) ||
+                                                     !UserNoCancelNoDirectoryChangeNoQuitNoNameChange(userOption));
     }
     
     public static void DisplayDirectoryNames()

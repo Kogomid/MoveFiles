@@ -1,13 +1,15 @@
 namespace MoveFiles.Configuration;
 
+using NLog;
 using FileManagement;
 using ConsoleInteraction;
 using Newtonsoft.Json;
 
 public class ConfigurationManager
 {
+    static readonly Logger Logger = LogManager.GetCurrentClassLogger();
+    
     static readonly string ConfigFile = "config.json";
-
     public string? DownloadPath { get; set; }
     public List<string>? DirectoryNames { get; set; }
 
@@ -29,7 +31,7 @@ public class ConfigurationManager
         }
         catch (Exception e)
         {
-            ConsoleInteraction.PrintMessage("An error occurred: " + e.Message);
+            Logger.Error(e,"An error occured while creating configuratuin.");
             Console.ReadKey();
             Program.Main();
         }
@@ -48,7 +50,7 @@ public class ConfigurationManager
             }
             catch (Exception e)
             {
-                Console.WriteLine($"An error occured: {e}");
+                Logger.Error(e,"An error occured while changing name in config.");
             }
         }
     }
@@ -74,7 +76,7 @@ public class ConfigurationManager
             }
             catch (Exception e)
             {
-                ConsoleInteraction.PrintMessage("An error occurred: " + e.Message);
+                Console.WriteLine($"An error occured: {e} ");
                 Console.ReadKey();
                 Program.Main();
             }
@@ -88,20 +90,36 @@ public class ConfigurationManager
 
     public static ConfigurationManager LoadConfiguration()
     {
-        if (CheckIfConfigFileExists() == false)
+        if (!CheckIfConfigFileExists())
         {
             CreateConfigFile();
         }
         try
         {
-            string json = File.ReadAllText(ConfigFile);
-            return JsonConvert.DeserializeObject<ConfigurationManager>(json);
+            return LoadConfigFromFile();
         }
-        catch
+        catch (FileNotFoundException e)
         {
+            Logger.Error(e, "Configuration file not found. A new one will be created.");
             CreateConfigFile();
+            return LoadConfigFromFile();
         }
-        return null;
+        catch (JsonException e)
+        {
+            Logger.Error(e, "Error parsing the configuration file. Please check the file format.");
+            throw;
+        }
+        catch (Exception e)
+        {
+            Logger.Error(e, "An unexpected error occurred while loading the configuration.");
+            throw;
+        }
+    }
+
+    static ConfigurationManager LoadConfigFromFile()
+    {
+        string json = File.ReadAllText(ConfigFile);
+        return JsonConvert.DeserializeObject<ConfigurationManager>(json);
     }
 
     public static void SaveConfiguration(ConfigurationManager config)
@@ -113,7 +131,7 @@ public class ConfigurationManager
         }
         catch (Exception e)
         {
-            ConsoleInteraction.PrintMessage($"An error occurred while saving configuration: {e.Message}");
+            Logger.Error(e,"An error occured while saving config file.");
         }
     }
 }
